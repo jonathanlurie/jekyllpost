@@ -90,7 +90,7 @@ def main():
     yamlHeader = yamlHeader + "date : " + todayPrefix + "\n"
     yamlHeader = yamlHeader + "title : " + args.title + "\n"
     yamlHeader = yamlHeader + "thumb : " + thumb + "\n"
-    yamlHeader = yamlHeader + "background : " + str(background) + "\n"
+    yamlHeader = yamlHeader + "backgrounds : " + str(background) + "\n"
     yamlHeader = yamlHeader + "show_tags : false\n"
     yamlHeader = yamlHeader + "show_categories : false\n"
     yamlHeader = yamlHeader + "excerpt : \"this is the excerpt\"\n"
