@@ -38,13 +38,14 @@ First, you need to edit the `settings/settings.ini` file:
 
 Then, in a terminal, launch `jekyllpost.sh`  with few arguments:
 
-Mendatory arguments:
+Mendatory arguments for creating a new post:
 
 - **-title _TITLE_** The title of the blog post (between double quotes if more than one word)
-- **-thumb _THUMB_** Top image, will be copied into the /img/ blog folder. Can be local or start by http
+
 
 Optional arguments:
 
+- **-thumb _THUMB_** Top image, will be copied into the /img/ blog folder. Can be local or start by http. If not specified, a random image will be taken from the setting file's *defaultThumbs* field. Note that default thumbs list uses space as a separator.
 - **-url _URL_** changes the permalink. use dash instead of spaces. Default : blog title with dash
 - **-images _[IMAGES [IMAGES ...]]_** One or more images to include in the post
 - **-author _AUTHOR_** Name to the author
@@ -64,6 +65,15 @@ If today is the 16th of June 2015, the image will be copied to:
 
 `/user/john/Documents/myBlog/img/2015/06/16/imageName.jpg`
 
+It's important to note that an image filename cannot start by an underscore like _NIK4279.JPG. It messes with Jekyll serve...
 
 
+## The image feature, alone
 
+If you do not want to create an article, but just copy some images into the right date-formated subfolder stuff, you can use Jekyllpost just like that:
+
+```
+jekyllpost -images /Users/jonathanlurie/Desktop/NIK7649.jpg http://www.creativeapplications.net/wp-content/uploads/2015/06/nypl.jpg
+```
+
+Once again, the distant (http) images wont by copied.

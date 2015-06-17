@@ -4,6 +4,7 @@ import argparse
 import datetime
 import os.path
 import shutil
+import random
 
 from SettingFileReader import *
 
@@ -17,17 +18,20 @@ def main():
     settings = SettingFileReader()
     siteLocation = settings.getSetting("blogSettings", "siteLocation")
     defaultAuthor = settings.getSetting("blogSettings", "defaultAuthor")
+    defaultThumbs = settings.getSetting("blogSettings", "defaultThumbs").split()
+    randomThumb = random.choice(defaultThumbs)
 
 
-    description = "Prepares a new post for a Jekyll blog.\nversion: " + str(__version__)
+    description = "Prepares a new post for a Jekyll blog.\nversion: " + str(__version__) + "\n"
+
 
     #parser = argparse.ArgumentParser(description=description)
     parser = argparse.ArgumentParser(description=description)
 
 
     # mendatory
-    parser.add_argument('-title', required=True, help='The title of the blog post')
-    parser.add_argument('-thumb', required=True, help='Top image, will be copied into the /img/ blog folder. Can be local or start by http' )
+    parser.add_argument('-title', required=False, help='The title of the blog post')
+    parser.add_argument('-thumb', required=False, default=randomThumb, help='Top image, will be copied into the /img/ blog folder. Can be local or start by http' )
 
     # optional
     parser.add_argument('-url', required=False, default=None, help='Default : blog title with dash')
@@ -42,8 +46,59 @@ def main():
     args = parser.parse_args()
 
 
+
     todayPrefix = datetime.date.today().strftime('%Y-%m-%d')
     todayFolder = datetime.date.today().strftime('%Y/%m/%d')
+
+
+    imagesToWrite = ""
+    imageLocalAddress = ""
+
+    # adding all the other images
+    if(args.images):
+
+        for img in args.images:
+
+            if(img.startswith("http")):
+                tmpImage = img
+
+            # the image is local
+            else:
+                tmpImage = "../img/" + todayFolder + "/" + os.path.basename(img)
+                localDestFolder = siteLocation + os.sep + "img" + os.sep + todayFolder
+
+                if(not os.path.exists(localDestFolder)):
+                    os.makedirs(localDestFolder)
+
+                imageLocalAddress = imageLocalAddress + "img/" + todayFolder + "/" + os.path.basename(img) + "\n"
+
+                shutil.copyfile(img, localDestFolder + os.sep + os.path.basename(img))
+
+
+            imagesToWrite = imagesToWrite + "![](" + tmpImage + ")\n"
+
+
+        # if we just wanted to copy some picture, and not to create a whole article
+        if(not args.title):
+            print("--------------------------------------------------------------------------------")
+            print("Image sucessfully written in Jekyll blog subdir:")
+            print(imageLocalAddress)
+            print("--------------------------------------------------------------------------------")
+            print("Markdown integration code:")
+            print imagesToWrite
+            #print("--------------------------------------------------------------------------------")
+
+            exit()
+
+
+    # quiting when title is missing
+    if(not args.title):
+        print("ERROR : you should use the -title argument to create a new article")
+        print("or use -image to just copy images.")
+        print("use -help for other options.")
+        exit()
+
+
 
     # copying the main image to img/ subfolder
 
@@ -101,31 +156,8 @@ def main():
         yamlHeader = yamlHeader + "* TOC\n"
         yamlHeader = yamlHeader + "{:toc}\n\n"
 
-
-
-
-
-    # adding all the other images
-    if(args.images):
-
-        for img in args.images:
-
-            if(img.startswith("http")):
-                tmpImage = args.background
-
-            # the image is local
-            else:
-                tmpImage = "../img/" + todayFolder + "/" + os.path.basename(img)
-                localDestFolder = siteLocation + os.sep + "img" + os.sep + todayFolder
-
-                if(not os.path.exists(localDestFolder)):
-                    os.makedirs(localDestFolder)
-
-                shutil.copyfile(img, localDestFolder + os.sep + os.path.basename(img))
-
-
-            yamlHeader = yamlHeader + "![](" + tmpImage + ")\n"
-
+    # writing images
+    yamlHeader = yamlHeader + imagesToWrite
 
 
     # saving the markdown file
